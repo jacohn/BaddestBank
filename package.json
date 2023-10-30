@@ -1,0 +1,17 @@
+{
+  "name": "badbank3000",
+  "version": "1.0.0",
+  "description": "MITx Capstone Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "start": "node index.js"
+  },
+  "author": "jacohn@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongodb": "^4.1.2"
+  }
+}
