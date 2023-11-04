@@ -11,12 +11,15 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client) {
 });
 
 // create user account
-function create(name, email, password, balance){
+function create(name, email, password, balance) {
     return new Promise((resolve, reject) => {    
         const collection = db.collection('users');
         balance = parseInt(balance);
         const doc = {name, email, password, balance};
+        
         collection.insertOne(doc, {w:1}, function(err, result) {
+            // Record the account creation transaction
+            logTransaction(email, "account creation", 0);
             err ? reject(err) : resolve(doc);
         });    
     })
@@ -115,5 +118,26 @@ function all(){
     })
 }
 
+function logTransaction(email, type, amount) {
+    return new Promise((resolve, reject) => {    
+        const collection = db.collection('transactions');
+        const doc = {email, type, amount, date: new Date()};
+        
+        collection.insertOne(doc, {w:1}, function(err, result) {
+            err ? reject(err) : resolve(doc);
+        });    
+    })
+}
 
-module.exports = {create, all, deposit, withdraw, balance, login, find};
+// retrieve all transactions for a user
+function getTransactions(email) {
+    return new Promise((resolve, reject) => {    
+        const collection = db.collection('transactions');
+        collection.find({"email": email})
+            .toArray(function(err, docs) {
+                err ? reject(err) : resolve(docs);
+        });    
+    })
+}
+
+module.exports = {create, all, deposit, withdraw, balance, login, find, logTransaction, getTransactions};

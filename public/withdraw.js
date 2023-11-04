@@ -18,6 +18,7 @@ function Withdraw() {
             .then(response => response.json())
             .then(data => {
                 console.log(data);
+                ctx.setBalance(prevBalance => parseFloat(prevBalance) + parseFloat(ctx.update));
                 setStatus(`$${ctx.update} withdrawal successful!`);
                 setTimeout(() => setStatus(''), 2000);
             })

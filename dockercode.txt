@@ -1,0 +1,5 @@
+# docker image for mongodb
+# this image includes EXPOSE 27017 (the mongodb port),
+# so standard container linking willmake it
+#automatically avialable to the linked containers
+$ docker run -p 27017:27017 --name badbank -d mongo

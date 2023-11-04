@@ -9,6 +9,7 @@ function Spa() {
     return (
         <HashRouter>
         <div>
+            
 
             {/*add shared context*/}
             <UserContext.Provider value={{
@@ -27,7 +28,7 @@ function Spa() {
             }}>
             
             {/*get our navbar from navbar.js*/}
-            <NavBar auth={auth}/> 
+            <NavBar auth={auth} balance={balance} /> 
 
             <div className="container" style={{padding: "20px"}}>
                 <Route path="/" exact component={Home} />
