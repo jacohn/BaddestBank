@@ -3,10 +3,10 @@ function Home() {
     return (
         <Card
             bgcolor="primary"
-            header="Home"
+            header="Welcome to the Baddest Bank in town!"
             status=""
-            text="Welcome to the Bank!"
-            body="Here at BankBad Inc., we pride ourselves on offering the best banking services with minimal security since 2021"
+            text=""
+            body="From here, you can deposit and withdrawal all the fake money you want!"
         />
     )
 }
