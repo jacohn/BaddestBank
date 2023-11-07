@@ -1,10 +1,9 @@
 require('dotenv').config();
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const pw= process.env.MONGOPW
 
 
-const uri = `mongodb+srv://jacohn:${encodeURIComponent(pw)}@cluster0.4v5kcmi.mongodb.net/?retryWrites=true&w=majority`;
+const uri = process.env.MONGO
 
 
 
