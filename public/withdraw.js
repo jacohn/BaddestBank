@@ -1,24 +1,33 @@
 function Withdraw() {
     const ctx = React.useContext(UserContext); 
     const [status, setStatus] = React.useState('');
+    const authContext = React.useContext(AuthContext);
 
     function handleWithdraw() {
-        if(!ctx.auth){
+        if(!authContext.isUserLoggedIn){
             setStatus("Please log in to make a withdrawal.");
+            return;
+        }
+
+        const depositAmount = ctx.update;
+
+        if (!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > ctx.balance) {
+            console.log('Invalid deposit amount');
+            setStatus("Please enter a valid amount to deposit.");
             return;
         }
 
         // Assuming ctx.balance is a number, converting it to string for further processing (if needed).
 
-        setStatus(`$${ctx.update} withdrawal successful!`);
-        setTimeout(() => setStatus(''), 2000);
+        
 
-        const url = `/account/withdraw/${ctx.email}/${ctx.update}`;
+        const url = `/account/withdraw/${authContext.userEmail}/${parseFloat(ctx.update)}`;
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                ctx.setBalance(prevBalance => parseFloat(prevBalance) + parseFloat(ctx.update));
+                ctx.setBalance(ctx.balance - parseFloat(ctx.update));
+                
                 setStatus(`$${ctx.update} withdrawal successful!`);
                 setTimeout(() => setStatus(''), 2000);
             })

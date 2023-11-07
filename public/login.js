@@ -1,5 +1,8 @@
 function Login() {
-    const ctx = React.useContext(UserContext); 
+    const ctx = React.useContext(UserContext);
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState(""); 
+    const authContext = React.useContext(AuthContext);
     const [status, setStatus] = React.useState(null);
 
     function login() {
@@ -21,42 +24,33 @@ function Login() {
                     var data = await res.json();
                     console.log("Login response data:", data);
     
-                    if (Array.isArray(data) && data.length !== 0) {
-                        ctx.setAuth(true);           // Use setAuth to update the auth state
-                        ctx.setEmail(email);         // Set the user's email in the context
-                        ctx.setName(data[0].name);   // Set the user's name from server response
+                    if (data && data.email) { // Make sure data contains the email field
+                        authContext.login(email); // Use login function from AuthContext
+                        ctx.setBalance(data.balance);
+                        ctx.setName(data.name);
+                        ctx.setEmail(data.email);
+                        console.log("hi "+ data);
+    
+                        setStatus('Login successful');
                         
-                        // Store user's login state in localStorage
-                        localStorage.setItem('loggedIn', 'true');
-                        localStorage.setItem('userEmail', email);
-                        testAuth(true);
                     } else {
-                        console.error("Unexpected data structure from login:", data);
-                        setStatus('Login failed: unexpected data from server');
-                        setTimeout(() => setStatus(null), 3000);
+                        setStatus('Login failed: incorrect email or password');
                     }
                 } catch (error) {
                     console.error("Error during login:", error);
                     setStatus('Login failed: ' + error.message);
-                    setTimeout(() => setStatus(null), 3000);
                 }
             })();
         } else {
             setStatus('Please enter an email and password');
-            setTimeout(() => setStatus(null), 3000);
         }
     }
-    
+
 
     function logout() {
-        ctx.setAuth(false); // Use setAuth to update the auth state
-        ctx.setEmail(''); // Use setEmail to clear the email
-        ctx.setPassword(''); // Use setPassword to clear the password
-        // Clear user's login state from localStorage
-        localStorage.removeItem('loggedIn');
-        localStorage.removeItem('userEmail');
+        authContext.logout(); // Use logout function from AuthContext
+        setStatus('You have been logged out');
         // Redirect to home or any other page
-        window.location.href = "#/";
     }
 
     function testAuth(success) {
@@ -73,14 +67,29 @@ function Login() {
 
     return (
         <div className="container">
-            <h4 className="text-center">Log in to account</h4>
-            <br/>
-            {status}
-            <CardForm showName="none" showAmount="none"/>
-            {ctx.auth ? 
-                <button type="button" className="btn btn-warning" onClick={logout}>Logout</button> :
-                <button type="submit" className="btn btn-primary" onClick={login}>Login</button>
-            }
+          <div className="card">
+            <div className="card-header text-center">
+              Log in to account
+            </div>
+            <div className="card-body">
+              {status && <div className="alert alert-danger" role="alert">{status}</div>}
+              
+              <div className="mb-3">
+                <label htmlFor="emailInput" className="form-label">Email address</label>
+                <input type="email" className="form-control" id="emailInput" value={email} onChange={e => setEmail(e.target.value)} />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="passwordInput" className="form-label">Password</label>
+                <input type="password" className="form-control" id="passwordInput" value={password} onChange={e => setPassword(e.target.value)} />
+              </div>
+              <div className="d-grid gap-2">
+                {authContext.isUserLoggedIn ? 
+                  <button type="button" className="btn btn-primary" onClick={logout}>Logout</button> :
+                  <button type="button" className="btn btn-primary" onClick={() => handleLogin(email, password)}>Login</button>
+                }
+              </div>
+            </div>
+          </div>
         </div>
-    );
-}
+      );
+            }

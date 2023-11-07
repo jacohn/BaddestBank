@@ -1,6 +1,7 @@
 function Transactions() {
     const ctx = React.useContext(UserContext);
     const [transactions, setTransactions] = React.useState([]);
+    const authContext = React.useContext(AuthContext);
 
     React.useEffect(() => {
         if (isUserLoggedIn) {

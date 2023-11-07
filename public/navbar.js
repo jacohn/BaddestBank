@@ -1,18 +1,16 @@
 function NavBar({ auth }) {
   const ctx = React.useContext(UserContext);
+  const authContext = React.useContext(AuthContext); // Now using AuthContext
 
-  function logout() {
+
+  function logout(event) {
     event.preventDefault();
-    ctx.setAuth(false);
-    ctx.setEmail('');
-    ctx.setPassword('');
-    // Clear user's login state from localStorage
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('userEmail');
+    authContext.logout(); // Use logout function from AuthContext
     // Redirect to home or any other page
     window.location.href = "#/";
   }
 
+  /*
   React.useEffect(() => {
     // Function to fetch balance from the server
     async function fetchBalance(email) {
@@ -40,15 +38,16 @@ function NavBar({ auth }) {
         console.error("Fetch balance failed:", error);
       }
     }
-  
+ 
+
     // If the user is authenticated, fetch their balance
-    if (auth && ctx.email) {
-      fetchBalance(ctx.email);
+    if (authContext.isUserLoggedIn) {
+      fetchBalance(authContext.email);
     } else {
       console.log("User is not authenticated or email is not set.");
     }
-  }, [auth, ctx]); // Re-run the effect when `auth` or context changes
-  
+  }, [authContext.isUserLoggedIn, authContext.email]);
+   */
 
   return(
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -73,7 +72,7 @@ function NavBar({ auth }) {
           <li className="nav-item ml-auto">
             <a className="nav-link" href="#/CreateAccount/">Create Account</a>
           </li>
-          {auth ? 
+          {authContext.isUserLoggedIn ? 
             <li className="nav-item">
               <a className="nav-link" href="#" onClick={logout}>Logout</a>
             </li> :
@@ -81,7 +80,7 @@ function NavBar({ auth }) {
               <a className="nav-link" href="#/login/">Login</a>
             </li>
           }
-          {auth && (
+          {authContext.isUserLoggedIn && (
         <span className="navbar-text ml-auto">
           Balance: ${ctx.balance}
         </span>

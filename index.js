@@ -165,7 +165,7 @@ app.get('/account/create/:name/:email/:password/:balance', function (req, res) {
 
 /**
  * @swagger
- * /account/deposit/{email}/{amount}:
+ * /account/deposit/{email}/{balance}:
  *   post:
  *     summary: Deposit money into an account
  *     description: Adds a specified amount of money to the user's account balance.
@@ -192,7 +192,7 @@ app.get('/account/deposit/:email/:balance', function (req, res) {
         then((user) => {
             dal.balance(req.params.email)
                 .then((balanceData) => {
-                    let newBalance = balanceData[0].balance;
+                    let newBalance = balanceData.balance;
                     dal.logTransaction(req.params.email, 'Deposit', req.params.balance, newBalance)
                         .then(() => {
                             console.log(user);
@@ -233,7 +233,7 @@ app.get('/account/withdraw/:email/:balance', function (req, res) {
         then((user) => {
             dal.balance(req.params.email)
                 .then((balanceData) => {
-                    let newBalance = balanceData[0].balance;
+                    let newBalance = balanceData.balance;
                     dal.logTransaction(req.params.email, 'Withdraw', req.params.balance, newBalance)
                         .then(() => {
                             console.log(user);
@@ -271,11 +271,15 @@ app.get('/account/withdraw/:email/:balance', function (req, res) {
  */
 
 app.get('/account/login/:email/:password', function (req, res) {
-    dal.login(req.params.email,req.params.password).
-        then((user) => {
+    dal.login(req.params.email, req.params.password)
+        .then(user => {
             console.log(user);
-            res.send(user);            
-        });    
+            res.json(user); // Send the user as JSON            
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(400).json({ error: err.message }); // Send error as JSON
+        });
 });
 
 // user account balance
@@ -303,7 +307,13 @@ app.get('/account/balance/:email', function (req, res) {
     dal.balance(req.params.email).
         then((user) => {
             console.log(user);
-            res.send(user);            
+            if (user.message) {
+                res.status(404).send(user.message);
+            } else {
+                res.send(user);
+            }            
+        }).catch((err) => {
+            res.status(500).send(err.message);
         });    
 });
 
@@ -332,6 +342,10 @@ app.get('/account/all', function (req, res) {
 
 
 var port = 3000;
-app.listen(port);
-console.log('Running on port: ' + port);
-// get all transactions for a user
+
+
+dal.initializeDb().then(() => {
+    app.listen(port, () => {
+      console.log(`Running on port: ${port}`);
+    });
+  });

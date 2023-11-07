@@ -6,7 +6,7 @@ function Home() {
             header="Welcome to the Baddest Bank in town!"
             status=""
             text=""
-            body="From here, you can deposit and withdrawal all the fake money you want!"
+            body="Because validation is for the weak!"
         />
     )
 }

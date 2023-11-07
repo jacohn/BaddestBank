@@ -1,71 +1,96 @@
 function Balance() {
-  const ctx = React.useContext(UserContext);
   const [data, setData] = React.useState("");
   const [status, setStatus] = React.useState(true);
+  const authContext = React.useContext(AuthContext);
+  const ctx = React.useContext(UserContext); 
+
+  // Assuming authContext provides user email and name
+  const userEmail = authContext.userEmail;
+  const userName = ctx.name;
 
   React.useEffect(() => {
-    fetchAccount(); // Automatically fetch balance when the component mounts
-  }, [ctx.user]);
+    fetchAccount();
+  }, [userEmail]);  // Update this line if `authContext` has a specific dependency that indicates user changes
 
   function fetchAccount() {
-    console.log("Fetching balance for email:", ctx.email);
-    if (ctx.auth) {
-      fetch(`/account/balance/${ctx.email}`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (
-            Array.isArray(data) &&
-            data.length > 0 &&
-            data[0].hasOwnProperty("balance")
-          ) {
-            ctx.setName(data[0].name);
-            ctx.setBalance(data[0].balance);
-            setData("$" + data[0].balance);
-          } else if (Array.isArray(data) && data.length === 0) {
-            console.error("No account found for the given email:", ctx.email);
-            setData("No account found");
+    // Log the state of user authentication and email
+    console.log("User logged in status:", authContext.isUserLoggedIn);
+    console.log("User email:", userEmail);
+  
+    if (authContext.isUserLoggedIn) {
+      if (!userEmail) {
+        console.error("User is not logged in or email is not provided");
+        setData("User is not logged in or email is not provided");
+        return;
+      }
+  
+      const fetchUrl = `/account/balance/${userEmail}`;
+      console.log("Fetch URL:", fetchUrl);
+  
+      fetch(fetchUrl)
+        .then(response => {
+          console.log("Fetch response:", response);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("Balance data received:", data);
+          if (data.hasOwnProperty("balance")) {
+            setData("$" + data.balance);
+            ctx.setBalance(parseFloat(data.balance))
           } else {
-            console.error("Unexpected data structure:", data);
-            setData("Error fetching balance");
+            throw new Error("Unexpected data structure from server");
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error fetching balance:", error);
-          setData("Error fetching balance");
+          setData(`Error fetching balance: ${error.message}`);
         });
     } else {
+      console.log("User is not logged in, prompting to log in to see balance.");
       setStatus("Login to see account balance");
       setTimeout(() => setStatus(""), 3000);
     }
   }
+  
+  
+
+ // Use a navigation function or hook for navigation if using react-router-dom
+ const navigateToDeposit = () => {
+  window.location.hash = '#/deposit/';
+};
+
+const navigateToWithdraw = () => {
+  window.location.hash = '#/withdraw/';
+};
 
   return (
     <Card
       bgcolor="info"
-      header={ctx.auth ? `${ctx.name}'s Balance` : "Balance"}
-      text={ctx.auth ? data : "Please log in to view your balance."}
+      header={authContext.isUserLoggedIn ? `${userName}'s Balance` : "Balance"}
+      text={authContext.isUserLoggedIn ? data : "Please log in to view your balance."}
       body={
-        <div>
-          {ctx.auth && (
-            <div>
-              <button
-                type="button"
-                className="btn btn-success me-2"
-                onClick={() => (window.location.href = "#/deposit/")}
-              >
-                Deposit
-              </button>
+        authContext.isUserLoggedIn && (
+          <div>
+            <button
+              type="button"
+              className="btn btn-success me-2"
+              onClick={navigateToDeposit}
+            >
+              Deposit
+            </button>
 
-              <button
-                type="button"
-                className="btn btn-warning"
-                onClick={() => (window.location.href = "#/withdraw/")}
-              >
-                Withdraw
-              </button>
-            </div>
-          )}
-        </div>
+            <button
+              type="button"
+              className="btn btn-warning"
+              onClick={navigateToWithdraw}
+            >
+              Withdraw
+            </button>
+          </div>
+        )
       }
     />
   );
