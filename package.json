@@ -2,10 +2,10 @@
   "name": "badbank3000",
   "version": "1.0.0",
   "description": "MITx Capstone Project",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "author": "jacohn@gmail.com",
   "license": "MIT",
